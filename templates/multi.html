@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, shrink-to-fit=no">
+    <title>Algebra Lineal</title>
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='styles.css')}}"/>
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='toggle.css')}}"/>
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='untitled.css')}}"/>
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='bootstrap.min.css')}}"/>
+</head>
+
+<body>
+    <form method="POST">
+    <div align="center">
+        <h1>Optimizador - Programación Lineal</h1>
+    </div>
+
+    <ul class="nav nav-tabs" role="tablist">
+        <li class="nav-item" style="width: 50%;"><a class="nav-link" href="/">2 Variables</a></li>
+        <li class="nav-item" style="width: 50%;"><a class="nav-link active" href="/multi">2+ Variables</a></li>
+    </ul>
+
+
+    <div class="obj" style="width: 470px;margin-left: 318px;"><strong>Funcion Objetivo</strong>
+        <div class="table-responsive" style="width: 400px;min-width: 100px;">
+            <table class="table">
+                <thead>
+                    <tr id="variable_list">
+                        <th>Var1</th>
+                        <th>Var2</th>
+                        <th></th>
+                        <th>Valor Optimo</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr id="variable_list_input">
+                        <td><input type="number" style="width: 75px;" name="vars" required="required" step="0.01"></td>
+                        <td><input type="number" style="width: 75px;" name="vars" required="required" step="0.01"></td>
+                        <td>=</td>
+                        <td>{{total}}</td>
+                    </tr>
+                </tbody>
+            </table>
+    </div><button class="btn btn-primary" id="solve" type="submit">Optimizar</button><h4>{{status}}</h4>
+        
+    <div class="table-responsive" style="width: 400px;min-width: 100px;">
+        <table class="table">
+            <thead>
+                <tr id="resVars">
+                    <th>Var1</th>
+                    <th>Var2</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr id="resValues">
+                    {%for i in range(0, ans|length)%} 
+                        <td>{{ans[i]}}</td> 
+                    {%endfor%} 
+                    
+                    <!---<td>0</td>
+                    <td>0</td>-->
+                </tr>
+            </tbody>
+        </table>
+    </div>
+    </div>
+
+    <div style="width: 470px;margin: 70px;">
+        <div class="table-responsive" style="width: 315px;margin: 0px;">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Variables</th>
+                    </tr>
+                </thead>
+                <tbody id="variables_table">
+                    <tr>
+                        <td>Var1</td>
+                    </tr>
+                    <tr>
+                        <td>Var2</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        <button class="btn btn-primary" type="button" onclick="addVariable()">Añadir Variable</button>
+    </div>
+
+    <div style="width: 470px;margin: 70px;"><strong style="margin: 0px;">Restriccciones</strong>
+        <div class="table-responsive">
+            <table class="table">
+                <thead>
+                    <tr id="restriccionesVars">
+                        <th>Var1 </th>
+                        <th>Var2 </th>
+                    </tr>
+                </thead>
+                <tbody id="restricciones_table">
+                    <tr>
+                        <td><input type="number" style="width: 75px;" name="res" required="required" step="0.01"></td>
+                        <td><input type="number" style="width: 75px;" name="res" required="required" step="0.01"></td>
+                        <td>
+                            <select name="signos">
+                                <option value="<="> <= </option>
+                                <option value="=="> = </option>
+                                <option value=">="> >= </option>
+                            </select></td>
+                        <td><input type="number" style="width: 75px;" name="limit" required="required" step="0.01"></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        <button class="btn btn-primary" type="button" onclick="addRestriction()">Añadir Restricción</button>
+    </div>
+
+    <div class="toggle">
+        <strong style="font-size: 26px;">Min</strong>
+        <label class="switch">
+            <input type="checkbox" name="op">
+            <span class="slider round"></span>
+        </label> 
+        <strong style="font-size: 26px;">Max</strong>
+    </div>    
+    </form>
+    <script src="assets/js/{{ url_for('static', filename='jquery.min.js')}}"></script>
+    
+    <script src="assets/bootstrap/js/{{ url_for('static', filename='bootstrap.min.js')}}"></script>
+</body>
+<script>
+    let number = 2;
+
+    function addVariable(){
+        number += 1;
+        
+        var table = document.getElementById("variables_table");
+        var column = document.getElementById("variable_list");
+        var objinput = document.getElementById("variable_list_input")
+        //var temp = column.innerHTML;
+        var tofill = ""
+
+        table.innerHTML += '<tr><td> Var'+number+'</td></tr>';
+        column.innerHTML += "<th> Var"+number+" </th>";
+        for(var x=1; x<=number; x++){
+            console.log(x);
+            tofill += '<td> <input type="number" style="width: 75px;" name="obj" required="required" step="0.01"> </td>';
+        }
+        tofill += '<td>=</td> <td><input type="number" style="width: 75px;" name="obj" readonly="readonly"></td>';
+        objinput.innerHTML = tofill;
+
+        var rescolumn = document.getElementById("resVars");
+        var resvalues = document.getElementById("resValues");
+        rescolumn.innerHTML += '<th> Var'+number+' </th>';
+        resvalues.innerHTML += '<td> 0 </td>';
+
+        var restriccionescolumn = document.getElementById("restriccionesVars");
+        restriccionescolumn.innerHTML += '<th> Var'+number+' </th>';
+
+        var restricciones = document.getElementById("restricciones_table");
+        restricciones.innerHTML = "";
+    }
+
+    function addRestriction(){
+        let table = document.getElementById("restricciones_table");
+        var row = "";
+        for(var x=1; x<=number; x++){
+            row += '<td><input type="number" style="width: 75px;" name="res" required="required" step="0.01"></td>';
+        }
+        row += "<td> <select name='signos'> "+
+                        "<option value='<='> <= </option>"+
+                        "<option value='=='> = </option>"+
+                        "<option value='>='> >= </option>"+ 
+                "</select> </td>";
+        row += '<td> <input type="number" style="width: 75px;" name="limit" required="required" step="0.01"> </td>';
+        table.innerHTML += row;
+    }
+</script>
+
+
+</html>
