@@ -62,7 +62,6 @@ def whoami():
             for j in range(vn):
                 #ask = "Ingrese el coeficiente de la restriccion " , str(i+1) , " variable " , Variables[j] ,": "
                 print("j", j)
-
                 #cur = input("Ingrese el coeficiente de la restriccion " + str(i+1) + " variable " +str(j+1) + ": ")
                 cur = res[int((i*vn)+j)]
                 cur_r.append(float(cur))
